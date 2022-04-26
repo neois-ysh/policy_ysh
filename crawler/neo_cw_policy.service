@@ -1,0 +1,13 @@
+[Unit]
+Description=Neo Crawler Policy
+
+[Service]
+WorkingDirectory=/neois/neo_website/policy_ysh/crawler
+Type=simple
+ExecStart=/usr/bin/node index.js
+Restart=on-failure
+RestartSec=3s
+StartLimitBurst=100
+
+[Install]
+WantedBy=multi-user.target

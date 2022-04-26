@@ -1,0 +1,25 @@
+{
+  "name": "policy_ysh",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.24.0",
+    "cheerio": "^1.0.0-rc.10",
+    "dotenv": "^10.0.0",
+    "https": "^1.0.0",
+    "knex": "^0.95.14",
+    "moment": "^2.29.1",
+    "moment-timezone": "^0.5.34",
+    "mysql": "^2.18.1",
+    "puppeteer": "^11.0.0",
+    "puppeteer-full-page-screenshot": "^1.2.2",
+    "request": "^2.88.2",
+    "request-promise-native": "^1.0.9"
+  }
+}
