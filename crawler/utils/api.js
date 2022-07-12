@@ -35,6 +35,8 @@ exports.updateDataUse = async(infos, area) => {
 	try {
 		await db('total_data').update({ use: 'N', end_date: today }).where({ area: db_area }).whereNull('end_date').whereNotIn('src', infos.map(r => r['src']));
 		await db('total_data').update({ use: 'N' }).where('use', 'Y').where('end_date', '<', today);
+		let count = Object.values(await db('total_data').count('*').where({ area: db_area, use: 'Y' }).first());
+		return count[0]
 	} catch (err) {
 		console.log('update_err', err);
 	}

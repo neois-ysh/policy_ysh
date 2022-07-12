@@ -25,6 +25,7 @@ console.log(`// 2022-03-24 지역 추가 및 정책 본문 스크린샷 영역 �
 console.log(`// 2022-03-29 배너 pc/mobile ver 분리 저장`);
 console.log(`// 2022-04-11 4/9 구리시청 홈페이지 리뉴얼에 따른 selector 수정`);
 console.log(`// 2022-04-13 DB > total_data에 created_at 컬럼 추가로 인한 NULL 에러 수정(area.js > columns)`);
+console.log(`// 2022-06-17 논산시청 추가 및 팝업창 제거 기능 추가`);
 console.log(`/////////////////////////////////////`);
 
 let bProcessing = false;
@@ -39,6 +40,7 @@ let count = {
 	uiwang: 0,
 	bucheon: 0,
 	guri: 0,
+	nonsan: 0,
 };
 
 (async () => {
@@ -69,7 +71,7 @@ async function timeCheck() {
 
 async function work() {
 	let area = undefined;
-	// let area = 'bucheon';
+	// let area = 'nonsan';
 
 	console.log('전체 URL 정보 호출 중...');
 	let urls = await api.getUrlData(area);
@@ -107,6 +109,7 @@ async function workPuppeteer(url, headers) {
 	try {
 		await page.setExtraHTTPHeaders(headers);
 		await page.goto(`${url['url']}`);
+		if(page.url() != url['url']) await page.goto(`${url['url']}`);
 	} catch (err) {
 		console.log(`${url['area']} goto_err`, err);
 
@@ -153,7 +156,7 @@ async function workPuppeteer(url, headers) {
 		};
 	}
 
-	pc_infos = await addCount(url['area'], pc_infos);
+	await addCount(url['area'], pc_infos);
 	
 	if(pc_infos.length > 0 && mob_infos.length > 0) {
 		infos[`${url['area']}`] = pc_infos;
@@ -400,6 +403,6 @@ async function setBannerPath(url, src) {
 
 // 현재 시구군청 활성화되어있는 정책 개수
 function addCount(area, pc_infos) {
-	count[area] = pc_infos[pc_infos.length-1]['count'];
-	return pc_infos.slice(0, pc_infos.length-1);
+	let pageOnCount = (pc_infos[pc_infos.length-1]['count'] || pc_infos[pc_infos.length-1]['index']) + 1;
+	count[area] = pageOnCount;
 }
