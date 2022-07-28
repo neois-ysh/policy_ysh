@@ -26,22 +26,10 @@ console.log(`// 2022-03-29 배너 pc/mobile ver 분리 저장`);
 console.log(`// 2022-04-11 4/9 구리시청 홈페이지 리뉴얼에 따른 selector 수정`);
 console.log(`// 2022-04-13 DB > total_data에 created_at 컬럼 추가로 인한 NULL 에러 수정(area.js > columns)`);
 console.log(`// 2022-06-17 논산시청 추가 및 팝업창 제거 기능 추가`);
+console.log(`// 2022-07-28 url_data.result 계산식 변경, NIMS에 사용할 index_check.js 생성`);
 console.log(`/////////////////////////////////////`);
 
 let bProcessing = false;
-let count = {
-	gunpo: 0,
-	chuncheon: 0,
-	suncheon: 0,
-	pyeongtaek: 0,
-	suwon: 0,
-	daejeon: 0,
-	buyeo: 0,
-	uiwang: 0,
-	bucheon: 0,
-	guri: 0,
-	nonsan: 0,
-};
 
 (async () => {
 	try {
@@ -71,16 +59,17 @@ async function timeCheck() {
 
 async function work() {
 	let area = undefined;
-	// let area = 'nonsan';
-
+	// let area = 'uiwang';
+	
 	console.log('전체 URL 정보 호출 중...');
 	let urls = await api.getUrlData(area);
-
+	
 	for (let url of urls) {
 		try {
-			workPuppeteer(url, headers);
+			await workPuppeteer(url, headers);
 		} catch(e) {
 			console.log('ERROR : work',url, e);
+			continue;
 		}		
 	};
 
@@ -91,6 +80,7 @@ async function workPuppeteer(url, headers) {
 	let infos = {};
 
 	console.log('puppeteer 실행 중...');
+	
 	const browser = await puppeteer.launch({
 		headless: true,
 		devtools: false,
@@ -155,8 +145,6 @@ async function workPuppeteer(url, headers) {
 			}
 		};
 	}
-
-	await addCount(url['area'], pc_infos);
 	
 	if(pc_infos.length > 0 && mob_infos.length > 0) {
 		infos[`${url['area']}`] = pc_infos;
@@ -291,9 +279,11 @@ async function workPuppeteer(url, headers) {
 
 		console.log(`${url['area']} 정책리스트 업데이트 중...`);
 		let db_count = await api.updateDataUse(infos[`${url['area']}`], `${url['area']}`);
-
+		
 		console.log(`${url['area']} 정책 개수 비교 중...`);
-		await api.updateResult(url['area'], db_count, count[`${url['area']}`]);
+		let result = 'SUCCESS';
+		if(db_count != pc_infos.length) result = 'ERROR';
+		await api.updateResult(url['area'], result);
 
 		console.log(`${url['area']} DB 저장 끝`);
 
@@ -353,7 +343,7 @@ async function getPuppetInfo(page, query_data, version) {
 	} catch (err) {
 		console.log('info_err', err);
 	}
-
+	
 	return rs;
 }
 
@@ -399,10 +389,4 @@ async function setBannerPath(url, src) {
 	}
 
 	return file_name;
-}
-
-// 현재 시구군청 활성화되어있는 정책 개수
-function addCount(area, pc_infos) {
-	let pageOnCount = (pc_infos[pc_infos.length-1]['count'] || pc_infos[pc_infos.length-1]['index']) + 1;
-	count[area] = pageOnCount;
 }

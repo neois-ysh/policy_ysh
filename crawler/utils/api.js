@@ -9,6 +9,7 @@ exports.getUrlData = async(area) => {
 	if(area != undefined) {
 		res = res.where({ area: area });
 	};
+	
 	return await res;
 };
 
@@ -42,9 +43,8 @@ exports.updateDataUse = async(infos, area) => {
 	}
 };
 
-exports.updateResult = async(area, db_count, count) => {
-	let qry = db('url_data');
-	db_count == count ? qry = qry.update({ result: 'Success' }).where({ area: area }) : qry = qry.update({ result: 'Error' }).where({ area: area });
+exports.updateResult = async(area, result) => {
+	let qry = db('url_data').update({ result: result }).where({ area: area });
 	await qry;
 };
 
@@ -121,3 +121,19 @@ exports.getAssortQS = async() => {
 exports.timeout = async(ms) => {
 	return new Promise(resolve => setTimeout(resolve, ms));
 };
+
+exports.getResult = async() => {
+	// let qry = db('total_data')
+	// .select(
+	// 	'area', 
+	// 	db.raw("MAX(reg_date) AS 'last_date'"), 
+	// 	db.raw("CASE WHEN DATEDIFF(now(), MAX(reg_date)) > 3 THEN 'ERROR' WHEN DATEDIFF(now(), MAX(reg_date)) > 1 THEN 'WARNING' ELSE 'SUCCESS' END AS result")
+	// ).groupBy('area');
+
+	let qry = db('url_data').select('area', 'result', (qb) => {
+		qb.max('reg_date').from('total_data').as('last_date')
+	}).groupBy('area');
+	
+	let rs = await qry;
+	return rs;
+}
