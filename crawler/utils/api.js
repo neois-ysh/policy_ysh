@@ -130,9 +130,9 @@ exports.getResult = async() => {
 	// 	db.raw("CASE WHEN DATEDIFF(now(), MAX(reg_date)) > 3 THEN 'ERROR' WHEN DATEDIFF(now(), MAX(reg_date)) > 1 THEN 'WARNING' ELSE 'SUCCESS' END AS result")
 	// ).groupBy('area');
 
-	let qry = db('url_data').select('area', 'result', (qb) => {
-		qb.max('reg_date').from('total_data').as('last_date')
-	}).groupBy('area');
+	let qry = db('url_data as ud').select('ud.area', db.raw("MAX(td.reg_date) AS 'last_date'"), 'ud.result')
+	.leftJoin('total_data as td', 'td.area', 'ud.area')
+	.groupBy('td.area');
 	
 	let rs = await qry;
 	return rs;

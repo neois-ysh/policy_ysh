@@ -5,12 +5,10 @@ const api = require('./utils/api');
 api.getResult().then(result => {
 	let msg = '_SYSTEM_OK_';
 
-	if(result) {
-		for(let rs of result) {
-			if(rs.result != 'SUCCESS') msg = '_SYSTEM_NG_';
-			break;
-		};
-	} else { msg = '_SYSTEM_NG_'; }
+	for(let rs of result) {
+		if(rs.result != 'SUCCESS') msg = '_SYSTEM_NG_';
+		break;
+	};
 
 	console.log(msg, JSON.stringify(result));
 })
