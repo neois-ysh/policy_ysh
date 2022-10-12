@@ -173,77 +173,69 @@ async function workPuppeteer(url, headers) {
 			let assorts = await api.getAssortQS();
 			
 			if (!fs.existsSync(file_name)) {
-				try {
-					if (info['href'] != '') {
-						let new_url = info['href'];
-						
-						try {
-							await page.goto(new_url, { waitUntil: 'networkidle0' });
-						} catch (err) {
-							console.log('본문 스크린샷 new_url ', err);
-						}
+				if (info['href'] != '') {
+					let new_url = info['href'];
+					
+					try {
+						await page.goto(new_url, { waitUntil: 'networkidle0' });
 
 						for(let a of assorts) {
-							try {
-								if(new_url.indexOf(a['area']) > -1 && new_url.indexOf(a['type']) > -1) {
-									hides = a['hide_qs'].split('|') || [];
-									backs = a['delete_qs'].split('|') || [];
-									spaces = a['space_qs'].split('|') || [];
-									
-									if(a['area'] == 'naver' && a['type'] == 'blog') {
-										const frame = await page.frames().find((frame) => frame.name() === 'mainFrame');
-										if(frame['_url'] != undefined) {
-											new_url = frame['_url'];
-										}
+							if(new_url.indexOf(a['area']) > -1 && new_url.indexOf(a['type']) > -1) {
+								hides = a['hide_qs'].split('|') || [];
+								backs = a['delete_qs'].split('|') || [];
+								spaces = a['space_qs'].split('|') || [];
+								
+								if(a['area'] == 'naver' && a['type'] == 'blog') {
+									const frame = await page.frames().find((frame) => frame.name() === 'mainFrame');
+									if(frame['_url'] != undefined) {
+										new_url = frame['_url'];
 									}
-
-									await page.goto(new_url, { waitUntil: 'networkidle0' });
-
-									await api.timeout(5000);
-	
-									await page.setViewport({
-										width: 414,
-										height: 896,
-										deviceScaleFactor: 2,
-										isMobile: true,
-										isLandscape: false,
-									});
-			
-									await api.timeout(2000);
-			
-									await page.evaluate((hides, backs, spaces) => {
-										let style = document.createElement('style');
-										document.head.appendChild(style);
-										if(hides.length > 0) {
-											hides.forEach((hide) => {
-												style.innerHTML += `${hide} { display:none; }`;
-											});
-										}
-										if(backs.length > 0) {
-											backs.forEach((back) => {
-												style.innerHTML += `${back} { background: none !important; }`;
-											});
-										}
-										if(spaces.length > 0) {
-											spaces.forEach((space) => {
-												style.innerHTML += `${space} { padding: 0 !important; margin: 0 !important; }`;
-											});
-										}
-										window.scrollTo(0, document.body.scrollHeight);
-									}, hides, backs, spaces);
-	
-								} else {
-									await page.setViewport({
-										width: 414,
-										height: 896,
-										deviceScaleFactor: 2,
-										isMobile: true,
-										isLandscape: false,
-									});
-									await api.timeout(2000);
 								}
-							} catch (err) {
-								console.log('ERROR: assorts', err);
+
+								await page.goto(new_url, { waitUntil: 'networkidle0' });
+
+								await api.timeout(5000);
+
+								await page.setViewport({
+									width: 414,
+									height: 896,
+									deviceScaleFactor: 2,
+									isMobile: true,
+									isLandscape: false,
+								});
+		
+								await api.timeout(2000);
+		
+								await page.evaluate((hides, backs, spaces) => {
+									let style = document.createElement('style');
+									document.head.appendChild(style);
+									if(hides.length > 0) {
+										hides.forEach((hide) => {
+											style.innerHTML += `${hide} { display:none; }`;
+										});
+									}
+									if(backs.length > 0) {
+										backs.forEach((back) => {
+											style.innerHTML += `${back} { background: none !important; }`;
+										});
+									}
+									if(spaces.length > 0) {
+										spaces.forEach((space) => {
+											style.innerHTML += `${space} { padding: 0 !important; margin: 0 !important; }`;
+										});
+									}
+									window.scrollTo(0, document.body.scrollHeight);
+								}, hides, backs, spaces);
+
+							} else {
+								await page.setViewport({
+									width: 414,
+									height: 896,
+									deviceScaleFactor: 2,
+									isMobile: true,
+									isLandscape: false,
+								});
+								await api.timeout(2000);
 							}
 						};
 
@@ -252,11 +244,11 @@ async function workPuppeteer(url, headers) {
 							fullPage: true,
 						});
 
-					} else {
-						info['bd_path'] = '';
+					} catch (err) {
+						console.log('본문 스크린샷 new_url ', err);
+						await browser.close();
 					}
-				} catch (err) {
-					console.log(err);
+				} else {
 					info['bd_path'] = '';
 				}
 			}
