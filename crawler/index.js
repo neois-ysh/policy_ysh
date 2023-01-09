@@ -59,7 +59,7 @@ async function timeCheck() {
 
 async function work() {
 	let area = undefined;
-	// let area = 'uiwang';
+	// let area = 'suwon';
 	
 	console.log('전체 URL 정보 호출 중...');
 	let urls = await api.getUrlData(area);
@@ -92,7 +92,7 @@ async function workPuppeteer(url, headers) {
 	// alert창
 	page.on('dialog', async (dialog) => {
 		await dialog.accept();
-	});
+	}); 
 	
 	console.log(`${url['area']}로 이동 중...`);
 
@@ -125,7 +125,7 @@ async function workPuppeteer(url, headers) {
 
 	let pc_infos = undefined;
 	let mob_infos = undefined;
-
+	
 	try {
 		pc_infos = await getPuppetInfo(page, query_data, 'pc');
 		mob_infos = await getPuppetInfo(page, query_data, 'mob');
@@ -145,7 +145,6 @@ async function workPuppeteer(url, headers) {
 			}
 		};
 	}
-	
 	if(pc_infos.length > 0 && mob_infos.length > 0) {
 		infos[`${url['area']}`] = pc_infos;
 		infos[`${url['area']}`].forEach((info, i) => {
@@ -153,6 +152,7 @@ async function workPuppeteer(url, headers) {
 		});
 		
 		for (let info of infos[`${url['area']}`]) {
+			// console.log('>>', info)
 			info['reg_date'] = today;
 			info['bn_path_pc'] = '';
 			info['bn_path_mob'] = '';
@@ -170,7 +170,8 @@ async function workPuppeteer(url, headers) {
 			file_name = file_name.substring(0, file_name.length - 4) + '_bd.jpg';
 			info['bd_path'] = file_name;
 			
-			let assorts = await api.getAssortQS();
+			let assorts = await api.getAssortQS(url['area']);
+			console.log(222, assorts);
 			
 			if (!fs.existsSync(file_name)) {
 				if (info['href'] != '') {
@@ -253,7 +254,7 @@ async function workPuppeteer(url, headers) {
 				}
 			}
 		};
-	
+		
 		await browser.close();
 		
 		console.log(`${url['area']} 끝`);
@@ -315,8 +316,8 @@ async function getPuppetInfo(page, query_data, version) {
 					temp = {
 						index: i,
 						href: slide.querySelector('a') != null ? slide.querySelector('a').href : '',
-						src: slide.querySelector('img').src,
-						alt: slide.querySelector('img').alt,
+						src: slide.querySelector('img') != null ? slide.querySelector('img').src : `https://www.suwon.go.kr${slide.querySelector('a').style.backgroundImage.split('"')[1]}`,
+						alt: slide.querySelector('img') != null ? slide.querySelector('img').alt : slide.querySelector('a').innerText,
 					};
 				} else {
 					temp = {

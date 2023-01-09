@@ -113,8 +113,9 @@ exports.checkExtension = async(file_name) => {
 	return name;
 };
 
-exports.getAssortQS = async() => {
-	let rs = await db('assort_section');
+exports.getAssortQS = async(area) => {
+	let rs = await db('assort_section').where({ area: area });
+	// console.log(111, rs);
 	return rs;
 };
 
