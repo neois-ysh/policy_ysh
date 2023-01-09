@@ -27,6 +27,7 @@ console.log(`// 2022-04-11 4/9 구리시청 홈페이지 리뉴얼에 따른 sel
 console.log(`// 2022-04-13 DB > total_data에 created_at 컬럼 추가로 인한 NULL 에러 수정(area.js > columns)`);
 console.log(`// 2022-06-17 논산시청 추가 및 팝업창 제거 기능 추가`);
 console.log(`// 2022-07-28 url_data.result 계산식 변경, NIMS에 사용할 index_check.js 생성`);
+console.log(`// 2023-01-09 utils api.js의 getAssortQS() area 변수 추가 && 부천, 수원, 춘천 querySelector 수정`);
 console.log(`/////////////////////////////////////`);
 
 let bProcessing = false;
