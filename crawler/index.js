@@ -28,6 +28,7 @@ console.log(`// 2022-04-13 DB > total_data에 created_at 컬럼 추가로 인한
 console.log(`// 2022-06-17 논산시청 추가 및 팝업창 제거 기능 추가`);
 console.log(`// 2022-07-28 url_data.result 계산식 변경, NIMS에 사용할 index_check.js 생성`);
 console.log(`// 2023-01-09 utils api.js의 getAssortQS() area 변수 추가 && 부천, 수원, 춘천 querySelector 수정`);
+console.log(`// 2023-01-10 본문 페이지 이동 혹은 본문 스크린샷 에러 시 browser.close() >> page.close()로 변경 및 해당 반복문에서 page.isClose() 확인 후, 재실행 추가(:157~:160)`);
 console.log(`/////////////////////////////////////`);
 
 let bProcessing = false;
@@ -60,7 +61,7 @@ async function timeCheck() {
 
 async function work() {
 	let area = undefined;
-	// let area = 'suwon';
+	// let area = 'tongyeong';
 	
 	console.log('전체 URL 정보 호출 중...');
 	let urls = await api.getUrlData(area);
@@ -153,6 +154,10 @@ async function workPuppeteer(url, headers) {
 		});
 		
 		for (let info of infos[`${url['area']}`]) {
+			if(page.isClosed()) {
+				page = await browser.newPage();
+				await page.setExtraHTTPHeaders(headers);
+			}
 			// console.log('>>', info)
 			info['reg_date'] = today;
 			info['bn_path_pc'] = '';
@@ -172,7 +177,7 @@ async function workPuppeteer(url, headers) {
 			info['bd_path'] = file_name;
 			
 			let assorts = await api.getAssortQS(url['area']);
-			console.log(222, assorts);
+			// console.log(222, assorts);
 			
 			if (!fs.existsSync(file_name)) {
 				if (info['href'] != '') {
@@ -247,8 +252,9 @@ async function workPuppeteer(url, headers) {
 						});
 
 					} catch (err) {
-						console.log('본문 스크린샷 new_url ', err);
-						await browser.close();
+						console.log('본문 스크린샷 에러 new_url ', err);
+						// await browser.close();
+						await page.close();
 					}
 				} else {
 					info['bd_path'] = '';
