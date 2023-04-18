@@ -1,0 +1,15 @@
+[Unit]
+Description=Neo Policy Images(HTTPS, https://common.neostep.kr:50017)
+​
+[Service]
+WorkingDirectory=/neois/neo_website/policy_ysh/policy_https
+Type=simple
+ExecStart=/usr/bin/node /neois/neo_website/policy_ysh/policy_https/bin/www
+Restart=on-failure
+RestartSec=3s
+StartLimitBurst=100
+​
+[Install]
+WantedBy=multi-user.target
+
+# cp neo_policy_https.service /etc/systemd/system & sudo systemctl daemon-reload & sudo systemctl enable neo_policy_https & sudo systemctl start neo_policy_https

@@ -29,6 +29,7 @@ console.log(`// 2022-06-17 논산시청 추가 및 팝업창 제거 기능 추�
 console.log(`// 2022-07-28 url_data.result 계산식 변경, NIMS에 사용할 index_check.js 생성`);
 console.log(`// 2023-01-09 utils api.js의 getAssortQS() area 변수 추가 && 부천, 수원, 춘천 querySelector 수정`);
 console.log(`// 2023-01-10 본문 페이지 이동 혹은 본문 스크린샷 에러 시 browser.close() >> page.close()로 변경 및 해당 반복문에서 page.isClose() 확인 후, 재실행 추가(:157~:160)`);
+console.log('// 2023-03-20 본문 페이지 이동 시, Navigation Timeout Error 대안 2개 중, 1개 실행 중.. (:188~:197')
 console.log(`/////////////////////////////////////`);
 
 let bProcessing = false;
@@ -61,7 +62,7 @@ async function timeCheck() {
 
 async function work() {
 	let area = undefined;
-	// let area = 'tongyeong';
+	// let area = 'cheongju';
 	
 	console.log('전체 URL 정보 호출 중...');
 	let urls = await api.getUrlData(area);
@@ -89,7 +90,7 @@ async function workPuppeteer(url, headers) {
 		args: ['--no-sandbox', '--disable-setuid-sandbox'],
 	});
 
-	const page = await browser.newPage();
+	let page = await browser.newPage();
 
 	// alert창
 	page.on('dialog', async (dialog) => {
@@ -184,7 +185,16 @@ async function workPuppeteer(url, headers) {
 					let new_url = info['href'];
 					
 					try {
-						await page.goto(new_url, { waitUntil: 'networkidle0' });
+						// Navigation Timeout Error 해결 제1안
+						// await page.setDefaultNavigationTimeout(0);
+						
+						// await page.goto(new_url, { waitUntil: 'networkidle0' });
+
+						// Navigation Timeout Error 해결 제2안
+						await page.goto(new_url, {
+							waitUntil: 'load',
+							timeout: 0
+						});
 
 						for(let a of assorts) {
 							if(new_url.indexOf(a['area']) > -1 && new_url.indexOf(a['type']) > -1) {
@@ -252,7 +262,7 @@ async function workPuppeteer(url, headers) {
 						});
 
 					} catch (err) {
-						console.log('본문 스크린샷 에러 new_url ', err);
+						console.log(`본문 스크린샷 에러 ${new_url} `, err);
 						// await browser.close();
 						await page.close();
 					}
